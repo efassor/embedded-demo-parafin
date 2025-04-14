@@ -37,17 +37,7 @@ REACT_APP_PARAFIN_CLIENT_ID="<your-client-id>"
 REACT_APP.PARAFIN_CLIENT_SECRET="<your-client-secret>"
 ```
 
-### 3. Create a pre-approved offer
-
-There are a few requirements before you can display a pre-approved offer with @parafin/react:
-
-- Create a [Business](https://docs.parafin.com/capital/share-data/methods/api#2-create-a-business), [Person](https://docs.parafin.com/capital/share-data/methods/api#3-create-a-person), and [Bank Account](https://docs.parafin.com/capital/share-data/methods/api#4-create-a-bank-account)
-- [Generate a Capital Product Offer](https://docs.parafin.com/api#tag/Sandbox/operation/Generate%20Capital%20Product%20Offer) for the newly created Business
-- Replace the `personId` in the `App.js` file with the ID from your newly created Person (`person_xxx`)
-
-See [our documentation](https://docs.parafin.com/capital/present-offers/embedded/) for more detailed information on how to create a pre-approved offer.
-
-### 4. Run the app
+### 3. Run the app
 
 You're now ready to run the app and check out your embedded offer!
 
