@@ -33,8 +33,8 @@ $ mv sample.env .env
 
 ```bash
 # .env
-PARAFIN_CLIENT_ID="<your-client-id>"
-PARAFIN_CLIENT_SECRET="<your-client-secret>"
+REACT_APP_PARAFIN_CLIENT_ID="<your-client-id>"
+REACT_APP.PARAFIN_CLIENT_SECRET="<your-client-secret>"
 ```
 
 ### 3. Create a pre-approved offer
