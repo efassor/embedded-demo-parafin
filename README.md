@@ -19,6 +19,8 @@ First, clone the quickstart repository and install dependencies:
 $ git clone https://github.com/buildparafin/embedded-demo.git
 $ cd embedded-demo
 $ npm install
+$ npm install @parafin/react
+$ npm install jwt-decode
 ```
 
 ### 2. Fetch and include API keys
