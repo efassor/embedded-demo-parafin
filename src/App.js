@@ -4,59 +4,81 @@ import styled from "styled-components";
 import { ParafinWidget } from "@parafin/react";
 import { Header } from "./components/Header.tsx";
 import { SideNav } from "./components/SideNav.tsx";
+import { jwtDecode } from "jwt-decode";
+
+const apiKey = process.env.REACT_APP_PARAFIN_CLIENT_ID;
+
+const TEST_USERS = {
+  none: {
+    label: "No Offers Yet",
+    personId: "person_973bdad5-070d-43fe-ac02-92387af2210d", 
+    externalBusinessId: "beid_no_offer",
+  },
+  eligible: {
+    label: "Eligible Offer",
+    personId: "person_b8416918-1859-4a96-8ff0-597e7e51e0e4",
+    externalBusinessId: "1e8a7fe8-226b-46ed-88f5-ab568887c38f",
+  },
+  capital: {
+    label: "Capital on the way",
+    personId: "person_4dc62bdb-2c41-4753-b284-42588b7d7180",
+    externalBusinessId: "something",
+  },
+  accepted: {
+    label: "Offer accepted",
+    personId: "person_36b50a34-cbba-4891-8164-c72942cd03ff", 
+    externalBusinessId: "8e64ec76-9b5f-45f8-ad8b-70c8cc5e25ba",
+  },
+};
 
 function App() {
   const [token, setToken] = useState(null);
   const [tab, setTab] = useState("capital");
+  const [offerState, setOfferState] = useState("none");
+
+  const fetchToken = async (personId) => {
+    if (!apiKey) {
+      console.error("Parafin API key is missing");
+      return;
+    }
+
+    const encoded = btoa(apiKey.trim() + ":");
+    console.log("API KEY :" + apiKey)
+    console.log("Encoding :" + encoded)
+
+    try {
+      console.log(TEST_USERS[offerState].personId)
+      const response = await axios.post(
+        "https://api.parafin.com/v1/auth/redeem_token",
+        {
+          person_id: TEST_USERS[offerState].personId
+        },
+        {
+          auth: {
+            username: process.env.REACT_APP_PARAFIN_CLIENT_ID,
+            password: process.env.REACT_APP_PARAFIN_CLIENT_SECRET,
+          },
+        }
+      );
+      //some very easy logging I added to quickly debug what turned out to be an access issue
+      console.log("Full response:", response.data);   
+      console.log("Received token:", response.data['bearer_token']);
+      console.log("Decoded token:", jwtDecode(response.data['bearer_token']));
+      setToken(response.data['bearer_token']);
+    } catch (err) {
+      console.error("Failed to fetch token:", err.response?.data || err.message);
+    }
+  };
 
   useEffect(() => {
-    // Change to false to use production or sandbox production environment
-    const isDevEnvironment = true;
-
-    const fetchToken = async () => {
-      // Replace with your own Person ID. It should begin with "person_".
-      const personId = "<your-person-id>";
-
-      // Fetch Parafin token from server
-      const response = await axios.get(
-        `/parafin/token/${personId}/${isDevEnvironment}`
-      );
-      setToken(response.data.parafinToken);
-    };
-
-    if (!token) {
-      fetchToken();
+    const selectedUser = TEST_USERS[offerState];
+    if (selectedUser) {
+      fetchToken(selectedUser.personId);
     }
-  });
-
-  const onOptIn = async () => ({
-    businessExternalId: "<your-external-business-id>",
-    legalBusinessName: "Hearty Kitchens LLC",
-    dbaName: "Hearty Kitchens",
-    ownerFirstName: "Ralph",
-    ownerLastName: "Furman",
-    accountManagers: [
-      {
-        name: "Vineet Goel",
-        email: "test1@parafin.com",
-      },
-    ],
-    routingNumber: "121141822",
-    accountNumberLastFour: "6789",
-    bankAccountCurrencyCode: "USD",
-    email: "test2@parafin.com",
-    phoneNumber: "2026331000",
-    address: {
-      addressLine1: "301 Howard St",
-      city: "San Francisco",
-      state: "CA",
-      postalCode: "94105",
-      country: "USA",
-    },
-  });
+  }, [offerState]);
 
   if (!token) {
-    return <LoadingShell>loading...</LoadingShell>;
+    return <LoadingShell>Token retrieval failed, fix the code Diane...</LoadingShell>;
   }
 
   return (
@@ -66,25 +88,30 @@ function App() {
         <SideNav onClick={(newProduct) => setTab(newProduct)} />
         {tab === "capital" && (
           <PageShell>
+            <label>
+              Offer State:&nbsp;
+              <select
+                value={offerState}
+                onChange={(e) => setOfferState(e.target.value)}
+              >
+                {Object.entries(TEST_USERS).map(([key, { label }]) => (
+                  <option key={key} value={key}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </label>
+
             <ParafinWidget
               token={token}
               product="capital"
-              // Optional props below, see docs.parafin.com for more information
-              externalBusinessId={undefined}
-              onOptIn={onOptIn}
+              // Optional below
+              externalBusinessId={TEST_USERS[offerState].externalBusinessId}
+              //onOptIn={onOptIn}
             />
           </PageShell>
         )}
-        {tab === "analytics" && (
-          <PageShell>
-            <h2>Analytics</h2>
-          </PageShell>
-        )}
-        {tab === "payouts" && (
-          <PageShell>
-            <h2>Payouts</h2>
-          </PageShell>
-        )}
+
       </ContentShell>
     </div>
   );
@@ -92,6 +119,7 @@ function App() {
 
 export default App;
 
+// Styled components
 const ContentShell = styled.div`
   display: flex;
   flex-direction: row;

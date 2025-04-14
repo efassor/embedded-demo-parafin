@@ -7,6 +7,7 @@
     "axios": "^1.2.3",
     "concurrently": "^7.6.0",
     "express-session": "^1.17.3",
+    "jwt-decode": "^4.0.0",
     "nodemon": "^2.0.20",
     "react": "^16.13.0",
     "react-dom": "^16.13.0",
